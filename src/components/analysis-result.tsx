@@ -78,7 +78,6 @@ export default function AnalysisResult({ result }: AnalysisResultProps) {
 
         <Alert variant="default" className="bg-primary/10 border-primary/20">
             <Sparkles className="h-4 w-4 !text-primary" />
-            <AlertTitle className="font-semibold text-primary">A Word of Encouragement</AlertTitle>
             <AlertDescription className="text-primary/80">
               {result.encouragement}
             </AlertDescription>
