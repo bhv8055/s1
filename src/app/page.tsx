@@ -1,30 +1,67 @@
-import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
 import HealthAnalyzer from '@/components/health-analyzer';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarInset,
+  SidebarContent,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
+import { Logo } from '@/components/icons/logo';
+import { Home, Settings, LifeBuoy } from 'lucide-react';
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 md:py-12">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4 font-headline tracking-tight">
-              Advanced AI Health Analyzer
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Get instant, preliminary insights into your health. Our AI-powered tool analyzes your symptoms and/or photos to provide a helpful analysis.
-            </p>
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarHeader className="p-2">
+          <div className="flex items-center gap-2">
+            <Logo className="h-8 w-8 text-primary" />
+            <span className="text-xl font-headline font-bold">SwastyaScan</span>
           </div>
-
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Dashboard" isActive>
+                <Home />
+                <span>Dashboard</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Help">
+                <LifeBuoy />
+                <span>Help</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Settings">
+                <Settings />
+                <span>Settings</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <div className="flex flex-col h-[100svh] bg-background">
+          <header className="flex h-14 shrink-0 items-center gap-4 border-b bg-card px-6">
+            <SidebarTrigger className="md:hidden" />
+            <div className="flex-1">
+              <h1 className="text-lg font-semibold">Health Analyzer Chat</h1>
+            </div>
+          </header>
           <HealthAnalyzer />
-          
-          <div className="mt-12 text-center text-sm text-muted-foreground">
-            <p><strong>Disclaimer:</strong> SwastyaScan is an AI-powered tool for preliminary analysis and is not a substitute for professional medical advice. Please consult a qualified healthcare provider for any health concerns.</p>
-          </div>
         </div>
-      </main>
-      <Footer />
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
