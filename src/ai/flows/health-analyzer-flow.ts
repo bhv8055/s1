@@ -48,7 +48,7 @@ export async function analyzeHealth(
 
 const healthAnalyzerPrompt = ai.definePrompt({
   name: 'healthAnalyzerPrompt',
-  model: 'googleai/gemini-1.5-flash-latest',
+  model: 'googleai/gemini-1.5-pro-latest',
   input: {schema: HealthAnalysisInputSchema},
   output: {schema: HealthAnalysisOutputSchema},
   prompt: `You are an AI medical assistant named SwastyaScan. Your goal is to analyze health conditions based on user-provided text descriptions and optional images.
