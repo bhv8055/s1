@@ -28,11 +28,9 @@ Follow these instructions to set up and run the project locally.
 
 ### 1. Installation
 
-First, clone the repository to your local machine and install the dependencies:
+First, install the dependencies:
 
 ```bash
-git clone <your-repo-url>
-cd <repo-name>
 npm install
 ```
 
@@ -41,9 +39,7 @@ npm install
 This project uses the Google Gemini API, which requires an API key.
 
 1.  Create a new file named `.env.local` in the root of the project.
-2.  Copy the contents of `.env.example` into `.env.local`.
-3.  Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
-4.  Add your API key to `.env.local`:
+2.  Add your API key to `.env.local`:
 
     ```
     GEMINI_API_KEY=YOUR_API_KEY_HERE

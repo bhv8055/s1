@@ -215,7 +215,7 @@ export default function HealthAnalyzer() {
                       <Image
                         src={imagePreview}
                         alt="Symptom photo preview"
-                        layout="fill"
+                        fill
                         objectFit="cover"
                         data-ai-hint="health symptom"
                       />
