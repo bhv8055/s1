@@ -2,78 +2,34 @@
 
 import { z } from "zod";
 import {
-  analyzeHeartSymptoms,
-  type AnalyzeHeartSymptomsOutput,
-} from "@/ai/flows/analyze-heart-symptoms";
-import {
-  analyzeSkinCondition,
-  type AnalyzeSkinConditionOutput,
-} from "@/ai/flows/analyze-skin-condition";
+  analyzeHealth,
+  type HealthAnalysisOutput,
+} from "@/ai/flows/health-analyzer-flow";
 
-const heartSymptomSchema = z.object({
-  symptoms: z.string().min(10, "Please provide a more detailed description of your symptoms."),
+const healthAnalysisSchema = z.object({
+  prompt: z.string().optional(),
+  photoDataUri: z.string().optional(),
 });
 
-export interface HeartAnalysisState {
+export interface AnalysisState {
   message?: string | null;
-  result?: AnalyzeHeartSymptomsOutput | null;
+  result?: HealthAnalysisOutput | null;
   error?: string | null;
   fieldErrors?: {
-    symptoms?: string[];
-  };
-}
-
-export async function handleHeartAnalysis(
-  prevState: HeartAnalysisState,
-  formData: FormData
-): Promise<HeartAnalysisState> {
-  const validatedFields = heartSymptomSchema.safeParse({
-    symptoms: formData.get("symptoms"),
-  });
-
-  if (!validatedFields.success) {
-    return {
-      message: "Validation failed.",
-      error: "Invalid input.",
-      fieldErrors: validatedFields.error.flatten().fieldErrors,
-    };
-  }
-
-  try {
-    const result = await analyzeHeartSymptoms({
-      symptoms: validatedFields.data.symptoms,
-    });
-    return { message: "Analysis complete.", result };
-  } catch (e: any) {
-    return {
-      message: "Analysis failed.",
-      error: e.message || "An unknown error occurred.",
-    };
-  }
-}
-
-const skinConditionSchema = z.object({
-  photoDataUri: z.string().min(1, "Image is required."),
-  description: z.string().optional(),
-});
-
-export interface SkinAnalysisState {
-  message?: string | null;
-  result?: AnalyzeSkinConditionOutput | null;
-  error?: string | null;
-  fieldErrors?: {
+    prompt?: string[];
     photoDataUri?: string[];
   };
 }
 
-export async function handleSkinAnalysis(
-  prevState: SkinAnalysisState,
+export async function handleHealthAnalysis(
+  prevState: AnalysisState,
   formData: FormData
-): Promise<SkinAnalysisState> {
-  const validatedFields = skinConditionSchema.safeParse({
-    photoDataUri: formData.get("photoDataUri"),
-    description: formData.get("description"),
-  });
+): Promise<AnalysisState> {
+    const rawData = {
+        prompt: formData.get("prompt"),
+        photoDataUri: formData.get("photoDataUri"),
+    };
+    const validatedFields = healthAnalysisSchema.safeParse(rawData);
 
   if (!validatedFields.success) {
     return {
@@ -83,10 +39,32 @@ export async function handleSkinAnalysis(
     };
   }
 
+  const { prompt, photoDataUri } = validatedFields.data;
+
+  if (!prompt && !photoDataUri) {
+      return {
+          message: "Validation failed.",
+          error: "Please provide either a description or an image.",
+          fieldErrors: {
+              prompt: ["Please provide a description or upload an image."],
+          }
+      }
+  }
+
+  if (prompt && prompt.length < 10 && !photoDataUri) {
+      return {
+          message: "Validation failed.",
+          error: "Description too short.",
+          fieldErrors: {
+              prompt: ["Please provide at least 10 characters if not uploading an image."]
+          }
+      }
+  }
+
   try {
-    const result = await analyzeSkinCondition({
-      photoDataUri: validatedFields.data.photoDataUri,
-      description: validatedFields.data.description,
+    const result = await analyzeHealth({
+      prompt: prompt || "Analyze the attached image.",
+      photoDataUri: photoDataUri,
     });
     return { message: "Analysis complete.", result };
   } catch (e: any) {

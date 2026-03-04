@@ -5,16 +5,15 @@ import { useFormState, useFormStatus } from "react-dom";
 import Image from "next/image";
 import { Upload, X, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { handleSkinAnalysis, type SkinAnalysisState } from "@/app/actions";
+import { handleHealthAnalysis, type AnalysisState } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AnalysisResult from "./analysis-result";
 import { fileToBase64 } from "@/lib/utils";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Label } from "./ui/label";
 
-const initialState: SkinAnalysisState = {
+const initialState: AnalysisState = {
   message: null,
   result: null,
   error: null,
@@ -31,16 +30,16 @@ function SubmitButton() {
           Analyzing...
         </>
       ) : (
-        "Analyze Skin Condition"
+        "Analyze"
       )}
     </Button>
   );
 }
 
-export default function SkinAnalyzer() {
-  const [state, formAction] = useFormState(handleSkinAnalysis, initialState);
+export default function HealthAnalyzer() {
+  const [state, formAction] = useFormState(handleHealthAnalysis, initialState);
   const { toast } = useToast();
-  const [imagePreview, setImagePreview] = useState<string | null>(PlaceHolderImages.find(p => p.id === 'skin-placeholder')?.imageUrl ?? null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,12 +65,19 @@ export default function SkinAnalyzer() {
   };
 
   const handleRemoveImage = () => {
-    setImagePreview(PlaceHolderImages.find(p => p.id === 'skin-placeholder')?.imageUrl ?? null);
+    setImagePreview(null);
     setPhotoDataUri("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
+  
+  const handleReset = () => {
+    formRef.current?.reset();
+    handleRemoveImage();
+    // A bit of a hack to reset the form state
+    window.location.reload(); 
+  }
 
   const handleSubmit = (formData: FormData) => {
     startTransition(() => {
@@ -83,12 +89,7 @@ export default function SkinAnalyzer() {
     return (
       <AnalysisResult
         result={state.result}
-        onReset={() => {
-          formRef.current?.reset();
-          handleRemoveImage();
-          // A bit of a hack to reset the form state
-          window.location.reload(); 
-        }}
+        onReset={handleReset}
       />
     );
   }
@@ -96,19 +97,19 @@ export default function SkinAnalyzer() {
   return (
     <Card className="overflow-hidden">
       <CardHeader>
-        <CardTitle>AI Skin Disease Analyzer</CardTitle>
+        <CardTitle>AI Health Analyzer</CardTitle>
         <CardDescription>
-          Upload a clear photo of the affected skin area and provide a brief description for an AI-powered analysis.
+          Upload a photo of a visible condition or describe your internal symptoms for an AI-powered analysis. You can provide both for a more accurate result.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form ref={formRef} action={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="skin-image">Skin Image</Label>
-            <div className="relative group w-full aspect-[3/2] rounded-lg border-2 border-dashed border-border flex items-center justify-center overflow-hidden">
+            <Label htmlFor="skin-image">Upload Image (Optional)</Label>
+            <div className="relative group w-full aspect-[3/2] rounded-lg border-2 border-dashed border-border flex items-center justify-center overflow-hidden bg-muted/20">
               {imagePreview ? (
                 <>
-                  <Image src={imagePreview} alt="Skin condition preview" layout="fill" objectFit="cover" data-ai-hint="skin analysis"/>
+                  <Image src={imagePreview} alt="Symptom photo preview" layout="fill" objectFit="contain" data-ai-hint="health analysis"/>
                   <Button
                     type="button"
                     variant="destructive"
@@ -141,13 +142,16 @@ export default function SkinAnalyzer() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Optional Description</Label>
+            <Label htmlFor="prompt">Describe Symptoms (Optional)</Label>
             <Textarea
-              id="description"
-              name="description"
-              placeholder="e.g., 'Itchy red patch on my arm for 3 days, getting slightly bigger.'"
-              rows={3}
+              id="prompt"
+              name="prompt"
+              placeholder="e.g., 'I have an itchy red patch on my arm...' or 'I've been experiencing chest pain and shortness of breath...'"
+              rows={4}
             />
+            {state.fieldErrors?.prompt && (
+              <p className="text-sm font-medium text-destructive">{state.fieldErrors.prompt[0]}</p>
+            )}
           </div>
           <SubmitButton />
         </form>
