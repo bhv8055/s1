@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "skin-placeholder",
+      "description": "A placeholder image for the skin analyzer.",
+      "imageUrl": "https://picsum.photos/seed/skin-placeholder/600/400",
+      "imageHint": "skin analysis"
+    }
+  ]
 }
